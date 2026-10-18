@@ -4,7 +4,6 @@
 #include <limits>
 #include <cmath>
 #include <algorithm>
-
 using namespace std;
 //void getlineinfo(int range, double min_value, double max_value)
 
@@ -12,7 +11,7 @@ double gettable(double tab[],int range, double min_value, double max_value) {
 
 string temp;
 
-    ifstream reader("samples_124.csv");
+    ifstream reader("samples.csv");
 
     getline(reader, temp);
     getline(reader, temp);
@@ -49,7 +48,6 @@ double meansignal(double tab[], int range){
 //y[n]=1/(N-1) - suma od k=0 do N-1 z y[n-k]
     int N=8;
     double dodawanie=0;
-    double tab_mean[range/8];
 
     for (int i = 0; i < range / 8; i++) {
         dodawanie = 0;
@@ -57,12 +55,11 @@ double meansignal(double tab[], int range){
             dodawanie += tab[k];
         }
         double mean = dodawanie / 8.0;
-        tab_mean[i] = mean;
-        cout << i << "       " << tab_mean[i] << endl; // Tylko żeby sprawdzić czy działa to czy nie XDDD
-        // Czemuś jak zrobiłem nową wersję to kurwa nie działa, ale działało serio XDDD
+        tab[i] = mean;
+       cout << i << "       " << tab[i] << "      " << mean << endl; // Tylko żeby sprawdzić czy działa to czy nie XDDD
         N += 8;
     }
-    return *tab_mean;
+    return *tab;
 }
 
 
@@ -73,7 +70,7 @@ int main() {
     string temp;
     double tab_main[range+1];
 
-    ifstream reader("samples_124.csv");
+    ifstream reader("samples.csv");
 
     getline(reader, temp);
     getline(reader, temp);
@@ -107,7 +104,7 @@ int main() {
 
 
 void getlineinfo(int range, double min_value, double max_value) {
-    ifstream reader("samples_124.csv");
+    ifstream reader("samples.csv");
 
     string temp;
     getline(reader, temp);

@@ -3,5 +3,4 @@ project(somethingtodo)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(somethingtodo
-    CZ_1_G_G_C.cpp)
+add_executable(somethingtodo cmake-build-debug/samples.csv CZ_1_G_G_C.cpp)

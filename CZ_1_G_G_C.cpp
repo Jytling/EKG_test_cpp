@@ -23,7 +23,11 @@ float sample;
 for(int i=0;reader.good() && i<range; i++){
     getline(reader,temp,',');
     getline(reader,temp);
-    sample=200*stof(temp);
+    sample=stof(temp);
+    // nie ma sensu wymnażać teraz na 200. Przy funkcji square wychodzą mega wielkie liczby.
+    //Najlepiej to przemnożyć w każdej funkcji na końcu lub w funkcji która będzie rysować wykres.
+    //Teraz jest przy każdej funkcji, na zajęciach lub może póżniej zrobię końcową funkcję.
+
     tab[i]=sample;
     }
     return *tab;
@@ -32,15 +36,15 @@ for(int i=0;reader.good() && i<range; i++){
 double lowp(double tab[], int range){
     //y(n)=x(n)-x(n-7)
     int N=7;
-
-    for(int l=0; l<N; l++){
-        tab[l]=0;
-    }
-    for(int j=N;j<range+1;j++){
-        tab[j]=tab[j]-tab[j-N];
-        cout << tab[j] << endl;
-    }
-    return *tab;
+    double tab_lowp[range+1];
+        for(int j=N;j<range;j++){
+            tab_lowp[j]=(tab[j]-tab[j-N]);
+            tab_lowp[j] *= 200;
+            tab_lowp[j]=round(tab_lowp[j]*1000)/1000;
+            //cout << tab_lowp[j] << " = " << 200*tab[j] << " - " << 200*tab[j-N] << endl; //sprawdzenie czy działa
+            //cout << tab_lowp[j] << endl; // Również sprawdzenie czy działa
+        }
+    return *tab_lowp;
 }
 
 double meansignal(double tab[], int range){
@@ -55,13 +59,21 @@ double meansignal(double tab[], int range){
             dodawanie += tab[k];
         }
         double mean = dodawanie / 8.0;
-        tab[i] = mean;
+        tab[i] = mean * 200;
        cout << i << "       " << tab[i] << "      " << mean << endl; // Tylko żeby sprawdzić czy działa to czy nie XDDD
         N += 8;
     }
     return *tab;
 }
 
+double square(double tab[], int range) {
+    double tab_squared[range];
+    for(int i=0;i<range;i++) {
+        tab_squared[i] = 200*(tab[i]*tab[i]);
+        cout << tab_squared[i] << "      " << tab[i] << endl;
+    }
+    return *tab_squared;
+}
 
 
 
@@ -94,8 +106,9 @@ int main() {
 
     //getlineinfo(range, min_value, max_value);
     gettable(tab_main,range, min_value, max_value);
-    //lowp(tab_main, range);
-    meansignal(tab_main,range);
+    lowp(tab_main, range);
+    //meansignal(tab_main,range);
+    //square(tab_main, range);
     /*for(int i = 0; i < range; i++){
     cout<<tab_main[i]<<endl;
     }*/

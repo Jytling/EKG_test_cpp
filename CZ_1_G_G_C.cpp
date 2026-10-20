@@ -83,7 +83,7 @@ void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squ
 
     char grid[range][width];
 
-   char** grid = new char*[height];
+   char** grid = new char*[height]; //tablica dynamiczna
     for (int i = 0; i < height; i++) {
         grid[r] = new char[width];
         for (int c = 0; c < width; c++) {
@@ -94,16 +94,47 @@ void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squ
     int* tabs[4] = {tab, tab_lowp, mean_tab, tab_squared};
     char symbols[4] = {'*', '$', '#', '&'};
 
-    int max_value = -50000;
+    int max_value = -50000; //poniezej szukamy wartosci najmniejszej i najweikszej
+    int min_value = 50000;
 
     for(int j=0; j<4; j++) {
-        
-
-
+        for(int l=0; l<range; l++) {
+            if(tabs[j][l]<min_value){
+                min_value = tabs[j][l];
+            }
+            if(tabs[j][l]>max_value){
+                max_value=tabs[j][l];
+            }
+        }
     }
-    
-    
 
+    int range = max_value - min_value;
+
+    //iteracja po wszystkich tablicach 
+    for(int i=0; i<range; i++){
+        int r =i; //to wiersz wykresu
+
+        for (int j=0;j<4;j++){
+            int val = tablice[j][i];
+
+            int c = 0;
+            if(range>0) {
+            C = ((val-min_val)*(width-1))/range; //skalowanie
+            } else {
+                c = width/2;
+            }
+            if (c>=0 && c < width) {
+                grid[r][c] = symbols[j];
+            }
+        }
+    }
+
+    for (int m=0;m<height;m++){
+        for(int n=0;n<width;n++){
+            cout<<grid[m][n];
+        }
+        cout<<"\n";
+    }
 
 }
 

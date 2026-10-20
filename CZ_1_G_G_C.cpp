@@ -52,6 +52,7 @@ double meansignal(double tab[], int range){
 //y[n]=1/(N-1) - suma od k=0 do N-1 z y[n-k]
     int N=8;
     double dodawanie=0;
+    doube mean_tab[range];
 
     for (int i = 0; i < range / 8; i++) {
         dodawanie = 0;
@@ -63,7 +64,7 @@ double meansignal(double tab[], int range){
        cout << i << "       " << tab[i] << "      " << mean << endl; // Tylko żeby sprawdzić czy działa to czy nie XDDD
         N += 8;
     }
-    return *tab;
+    return *mean_tab;
 }
 
 double square(double tab[], int range) {
@@ -75,7 +76,36 @@ double square(double tab[], int range) {
     return *tab_squared;
 }
 
+void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, int range){
 
+    const int width = 80;
+    int height = range;
+
+    char grid[range][width];
+
+   char** grid = new char*[height];
+    for (int i = 0; i < height; i++) {
+        grid[r] = new char[width];
+        for (int c = 0; c < width; c++) {
+            grid[r][c] = ' '; // Wypełnienie utworzoenj tablicy spacjami
+        }
+    }
+
+    int* tabs[4] = {tab, tab_lowp, mean_tab, tab_squared};
+    char symbols[4] = {'*', '$', '#', '&'};
+
+    int max_value = -50000;
+
+    for(int j=0; j<4; j++) {
+        
+
+
+    }
+    
+    
+
+
+}
 
 int main() {
     int range = 100;

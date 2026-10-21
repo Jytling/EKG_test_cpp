@@ -52,6 +52,9 @@ double* meansignal(double tab[], int range){
 
 //y[n]=1/(N-1) - suma od k=0 do N-1 z y[n-k]
     double* mean_tab = new double[range];
+    for (int i=0; i<range; i++) {
+        mean_tab[i] = tab[i];
+    }
     int N=8;
     double dodawanie=0;
     
@@ -61,7 +64,7 @@ double* meansignal(double tab[], int range){
             dodawanie += mean_tab[k];
         }
         double mean = dodawanie / 8.0;
-        mean_tab[i] = mean * 200;
+        mean_tab[i] = mean;
        cout << i << "       " << mean_tab[i] << "      " << mean << endl; // Tylko żeby sprawdzić czy działa to czy nie XDDD
         N += 8;
     }
@@ -70,8 +73,11 @@ double* meansignal(double tab[], int range){
 
 double* square(double tab[], int range) {
     double* tab_squared = new double[range];
+    for (int i=0; i<range; i++) {
+        tab_squared[i] = tab[i];
+    }
     for(int i=0;i<range;i++) {
-        tab_squared[i] = 200*(tab[i]*tab[i]);
+        tab_squared[i] = (tab[i]*tab[i]);
         cout << tab_squared[i] << "      " << tab[i] << endl;
     }
     return tab_squared;
@@ -139,7 +145,7 @@ void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squ
 }
 
 int main() {
-    int range = 500;
+    int range = 2000;
     string temp;
     //double tab_main[range+1];
 
@@ -176,8 +182,8 @@ int main() {
 
     double* tab_main    = gettable(range);
     double* tab_lowp    = lowp(tab_main, range);
-    double* mean_tab    = meansignal(tab_main, range);
-    double* tab_squared = square(tab_main, range);
+    double* mean_tab    = meansignal(tab_lowp, range);
+    double* tab_squared = square(mean_tab, range);
 
     chart_four(tab_main, tab_lowp, mean_tab, tab_squared, range);
 

@@ -176,8 +176,8 @@ int main() {
 
     double* tab_main    = gettable(range);
     double* tab_lowp    = lowp(tab_main, range);
-    double* mean_tab    = meansignal(tab_main, range);
-    double* tab_squared = square(tab_main, range);
+    double* mean_tab    = meansignal(tab_lowp, range);
+    double* tab_squared = square(mean_tab, range);
 
     chart_four(tab_main, tab_lowp, mean_tab, tab_squared, range);
 

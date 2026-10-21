@@ -3,9 +3,37 @@
 #include <string>
 #include <limits>
 #include <cmath>
-#include <algorithm>
 using namespace std;
-//void getlineinfo(int range, double min_value, double max_value)
+
+double* gettable(int range);
+double* lowp(double tab[], int range);
+double* meansignal(double tab[], int range);
+double* square(double tab[], int range);
+double* zakres(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, int range);
+void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, const double *tab_range, int range);
+
+int main() {
+    int range = 2000;
+
+    double* tab_main    = gettable(range);
+    double* tab_lowp    = lowp(tab_main, range);
+    double* mean_tab    = meansignal(tab_lowp, range);
+    double* tab_squared = square(mean_tab, range);
+    double* tab_range = zakres(tab_main, tab_lowp, mean_tab, tab_squared, range);
+    chart_four(tab_main, tab_lowp, mean_tab, tab_squared, tab_range, range);
+
+    delete[] tab_main;
+    delete[] tab_lowp;
+    delete[] mean_tab;
+    delete[] tab_squared;
+    delete[] tab_range;
+
+    return 0;
+}
+
+
+
+
 
 double* gettable(int range) {
     double* tab = new double[range];
@@ -17,18 +45,13 @@ string temp;
     getline(reader, temp);
     getline(reader, temp);
 
-const int chart_width = 80;
 tab[range+1];
 float sample;
 
 for(int i=0;reader.good() && i<range; i++){
     getline(reader,temp,',');
     getline(reader,temp);
-    sample=stof(temp);
-    // nie ma sensu wymnażać teraz na 200. Przy funkcji square wychodzą mega wielkie liczby.
-    //Najlepiej to przemnożyć w każdej funkcji na końcu lub w funkcji która będzie rysować wykres.
-    //Teraz jest przy każdej funkcji, na zajęciach lub może póżniej zrobię końcową funkcję.
-
+    sample=200*stof(temp);
     tab[i]=sample;
     }
     return tab;
@@ -40,32 +63,27 @@ double* lowp(double tab[], int range){
     int N=7;
         for(int j=N;j<range;j++){
             tab_lowp[j]=(tab[j]-tab[j-N]);
-            tab_lowp[j] *= 200;
             tab_lowp[j]=round(tab_lowp[j]*1000)/1000;
-            //cout << tab_lowp[j] << " = " << 200*tab[j] << " - " << 200*tab[j-N] << endl; //sprawdzenie czy działa
-            //cout << tab_lowp[j] << endl; // Również sprawdzenie czy działa
         }
     return tab_lowp;
 }
 
 double* meansignal(double tab[], int range){
-
-//y[n]=1/(N-1) - suma od k=0 do N-1 z y[n-k]
+//y[n]=1/(N-1) - addition from k=0 to N-1 of y[n-k]
     double* mean_tab = new double[range];
     for (int i=0; i<range; i++) {
         mean_tab[i] = tab[i];
     }
     int N=8;
-    double dodawanie=0;
+    double addition=0;
 
     for (int i = 0; i < range / 8; i++) {
-        dodawanie = 0;
+        addition = 0;
         for (int k = N - 8; k < N; k++) {
-            dodawanie += mean_tab[k];
+            addition += mean_tab[k];
         }
-        double mean = dodawanie / 8.0;
+        double mean = addition / 8.0;
         mean_tab[i] = mean;
-      // cout << i << "       " << mean_tab[i] << "      " << mean << endl; // Tylko żeby sprawdzić czy działa to czy nie XDDD
         N += 8;
     }
     return mean_tab;
@@ -78,199 +96,92 @@ double* square(double tab[], int range) {
     }
     for(int i=0;i<range;i++) {
         tab_squared[i] = (tab[i]*tab[i]);
-        //cout << tab_squared[i] << "      " << tab[i] << endl;
     }
     return tab_squared;
 }
 
 double* zakres(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, int range){
 
-    double* tab_zakres=new double[4];
-
-    int min1=50000,min2=50000,min3=50000,min4=50000;
-    int mak1=0,mak2=0,mak3=0,mak4=0;
-
+    double* tab_range=new double[4];
     double* tabs[4] = {tab, tab_lowp, mean_tab, tab_squared};
 
+    int min1, min2, min3, min4; // MIN VALUES
+    min1=min2=min3=min4=numeric_limits<int>::infinity();
+    int max1, max2, max3, max4; // MAX VALUES
+    max1=max2=max3=max4=-numeric_limits<int>::infinity();
 
-    for(int i=0; i<range; i++) {
-        if(min1>tabs[0][i]){
-        min1=tabs[0][i];
+    int mins[4] ={min1,min2,min3,min4};
+    int maxs[4] ={max1,max2,max3,max4};
+
+    for(int i=0;i<4;i++) {
+        for(int j=0; j<range; j++) {
+            if(mins[i]>tabs[i][j]) mins[i]=tabs[i][j];
+            if(maxs[i]<tabs[i][j]) maxs[i]=tabs[i][j];
         }
-        if(mak1<tabs[0][i]) mak1=tabs[0][i];
-        if(min2>tabs[1][i]) min2=tabs[1][i];
-        if(mak2<tabs[1][i]) mak2=tabs[1][i];
-        if(min3>tabs[2][i]) min3=tabs[2][i];
-        if(mak3<tabs[3][i]) mak3=tabs[2][i];
-        if(min4>tabs[3][i]) min4=tabs[3][i];
-        if(mak4<tabs[3][i]) mak4=tabs[3][i];
+        tab_range[i]=(maxs[i]-mins[i])/80;
     }
-    cout << min1;
-    cout << mak1;
-    int zakres1;
-    zakres1 = (mak1-min1)/80;
-    cout<<zakres1;
-    return 0;
-    //return tab_min_max;
+    return tab_range;
 }
 
-/*void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, int range){
-
+void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, const double *tab_range, int range) {
+    double* tabs[4] = {tab, tab_lowp, mean_tab, tab_squared};
     const int width = 80;
     int height = range;
+    char symbols[4] = {'*', '$', '#', '&'};
 
+    double mins[4];
+    for (int j = 0; j < 4; j++) {
+        mins[j] = tabs[j][0];
+        for (int l = 1; l < range; l++) {
+            if (tabs[j][l] < mins[j]) {
+                mins[j] = tabs[j][l];
+            }
+        }
+    }
 
-   char** grid = new char*[height]; //tablica dynamiczna
+    //siatka
+    char** grid = new char*[height];
     for (int i = 0; i < height; i++) {
         grid[i] = new char[width];
         for (int c = 0; c < width; c++) {
-            grid[i][c] = ' '; // Wypełnienie utworzoenj tablicy spacjami
+            grid[i][c] = ' ';
         }
     }
 
-
-    //cout<<tabs;
-    char symbols[4] = {'*', '$', '#', '&'};
-
-    int max_value = -50000; //poniezej szukamy wartosci najmniejszej i najweikszej
-    int min_value = 50000;
-
-    for(int j=0; j<4; j++) {
-        for(int l=0; l<range; l++) {
-            if(tabs[j][l]<min_value){
-                min_value = tabs[j][l];
-            }
-            if(tabs[j][l]>max_value){
-                max_value=tabs[j][l];
-            }
-        }
-    }
-
-
-    int zakres = max_value - min_value;
-
-    //iteracja po wszystkich tablicach
-    for(int i=0; i<range; i++){
-        int r =i; //to wiersz wykresu
-
-        for (int j=0;j<4;j++){
-            int val = tabs[j][i];
-
+    // Rysowanie i skalowanie indywidualne
+    for (int i = 0; i < range; i++) {
+        for (int j = 0; j < 4; j++) {
+            double val = tabs[j][i];
             int c = 0;
-            if(range>0) {
-            c = ((val-min_value)*(width-1))/zakres; //skalowanie
+
+            if (tab_range[j] > 0) {
+                c = static_cast<int>(round((val - mins[j]) / tab_range[j]));
             } else {
-                c = width/2;
+                c = width / 2;
             }
-            if (c>=0 && c < width) {
-                grid[r][c] = symbols[j];
-            }
-        }
-    }
 
-    for (int m=0;m<height;m++){
-        for(int n=0;n<width;n++){
-            cout<<grid[m][n];
-        }
-        cout<<"\n";
-    }
-    }
-*/
+            if (c < 0) c = 0;
+            if (c >= width) c = width - 1;
 
-
-int main() {
-    int range = 50;
-    string temp;
-    //double tab_main[range+1];
-
-    ifstream reader("samples.csv");
-
-    getline(reader, temp);
-    getline(reader, temp);
-
-    double min_value = numeric_limits<double>::infinity();
-    double max_value = -numeric_limits<double>::infinity();
-
-    for (int i = 0; i < range && getline(reader, temp, ','); i++) {
-        string value_str;
-        if (!getline(reader, value_str)) break;
-
-        try {
-            double val = 200.0 * stod(value_str);
-            if (val < min_value) min_value = val;
-            if (val > max_value) max_value = val;
-        } catch (const exception&) {
-            continue;
-        }
-    }
-    reader.close();
-
-    //getlineinfo(range, min_value, max_value);
-   // gettable(tab_main,range, min_value, max_value);
-    //lowp(tab_main, range);
-    //meansignal(tab_main,range);
-    //square(tab_main, range);
-    /*for(int i = 0; i < range; i++){
-    cout<<tab_main[i]<<endl;
-    }*/
-
-    double* tab_main    = gettable(range);
-    double* tab_lowp    = lowp(tab_main, range);
-    double* mean_tab    = meansignal(tab_lowp, range);
-    double* tab_squared = square(mean_tab, range);
-    double* tab_min_max = zakres(tab_main, tab_lowp, mean_tab, tab_squared, range);
-    //chart_four(tab_main, tab_lowp, mean_tab, tab_squared, range);
-
-    delete[] tab_main;
-    delete[] tab_lowp;
-    delete[] mean_tab;
-    delete[] tab_squared;
-    delete[] tab_min_max;
-
-    return 0;
-}
-
-
-void getlineinfo(int range, double min_value, double max_value) {
-    ifstream reader("samples.csv");
-
-    string temp;
-    getline(reader, temp);
-    getline(reader, temp);
-
-    const int chart_width = 80;
-    const int center = chart_width / 2;
-
-    double zero_point = (max_value + min_value) / 2.0;
-    double half_range = (max_value - min_value) / 2.0;
-
-    for (int i = 0; i < range && getline(reader, temp, ','); i++) {
-        if (!getline(reader, temp)) break;
-
-        double sample;
-        try {
-            sample = 200.0 * stod(temp);
-        } catch (const exception&) {
-            continue;
-        }
-
-        int offset = 0;
-        if (half_range != 0) {
-            offset = static_cast<int>(round((sample - zero_point) / half_range * center));
-        }
-
-        int pos = center + offset;
-        pos = max(0, min(chart_width - 1, pos));
-
-        for (int k = 0; k < chart_width; k++) {
-            if (k == pos) {
-                cout << '*';
-            } else if (k == center) {
-                cout << '|';
+            if (grid[i][c] != ' ' && grid[i][c] != symbols[j]) {
+                grid[i][c] = '+';
             } else {
-                cout << ' ';
+                grid[i][c] = symbols[j];
             }
         }
-        cout << endl;
     }
+
+    // Wyświetlanie wykresu
+    for (int m = 0; m < height; m++) {
+        for (int n = 0; n < width; n++) {
+            cout << grid[m][n];
+        }
+        cout << "\n";
+    }
+
+    // Zwolnienie pamięci siatki
+    for (int i = 0; i < height; i++) {
+        delete[] grid[i];
+    }
+    delete[] grid;
 }

@@ -57,7 +57,7 @@ double* meansignal(double tab[], int range){
     }
     int N=8;
     double dodawanie=0;
-    
+
     for (int i = 0; i < range / 8; i++) {
         dodawanie = 0;
         for (int k = N - 8; k < N; k++) {
@@ -65,7 +65,7 @@ double* meansignal(double tab[], int range){
         }
         double mean = dodawanie / 8.0;
         mean_tab[i] = mean;
-       cout << i << "       " << mean_tab[i] << "      " << mean << endl; // Tylko żeby sprawdzić czy działa to czy nie XDDD
+      // cout << i << "       " << mean_tab[i] << "      " << mean << endl; // Tylko żeby sprawdzić czy działa to czy nie XDDD
         N += 8;
     }
     return mean_tab;
@@ -78,12 +78,43 @@ double* square(double tab[], int range) {
     }
     for(int i=0;i<range;i++) {
         tab_squared[i] = (tab[i]*tab[i]);
-        cout << tab_squared[i] << "      " << tab[i] << endl;
+        //cout << tab_squared[i] << "      " << tab[i] << endl;
     }
     return tab_squared;
 }
 
-void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, int range){
+double* zakres(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, int range){
+
+    double* tab_zakres=new double[4];
+
+    int min1=50000,min2=50000,min3=50000,min4=50000;
+    int mak1=0,mak2=0,mak3=0,mak4=0;
+
+    double* tabs[4] = {tab, tab_lowp, mean_tab, tab_squared};
+
+
+    for(int i=0; i<range; i++) {
+        if(min1>tabs[0][i]){
+        min1=tabs[0][i];
+        }
+        if(mak1<tabs[0][i]) mak1=tabs[0][i];
+        if(min2>tabs[1][i]) min2=tabs[1][i];
+        if(mak2<tabs[1][i]) mak2=tabs[1][i];
+        if(min3>tabs[2][i]) min3=tabs[2][i];
+        if(mak3<tabs[3][i]) mak3=tabs[2][i];
+        if(min4>tabs[3][i]) min4=tabs[3][i];
+        if(mak4<tabs[3][i]) mak4=tabs[3][i];
+    }
+    cout << min1;
+    cout << mak1;
+    int zakres1;
+    zakres1 = (mak1-min1)/80;
+    cout<<zakres1;
+    return 0;
+    //return tab_min_max;
+}
+
+/*void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, int range){
 
     const int width = 80;
     int height = range;
@@ -96,8 +127,9 @@ void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squ
             grid[i][c] = ' '; // Wypełnienie utworzoenj tablicy spacjami
         }
     }
-    
-    double* tabs[4] = {tab, tab_lowp, mean_tab, tab_squared};
+
+
+    //cout<<tabs;
     char symbols[4] = {'*', '$', '#', '&'};
 
     int max_value = -50000; //poniezej szukamy wartosci najmniejszej i najweikszej
@@ -114,9 +146,10 @@ void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squ
         }
     }
 
+
     int zakres = max_value - min_value;
 
-    //iteracja po wszystkich tablicach 
+    //iteracja po wszystkich tablicach
     for(int i=0; i<range; i++){
         int r =i; //to wiersz wykresu
 
@@ -141,11 +174,12 @@ void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squ
         }
         cout<<"\n";
     }
+    }
+*/
 
-}
 
 int main() {
-    int range = 2000;
+    int range = 50;
     string temp;
     //double tab_main[range+1];
 
@@ -184,14 +218,15 @@ int main() {
     double* tab_lowp    = lowp(tab_main, range);
     double* mean_tab    = meansignal(tab_lowp, range);
     double* tab_squared = square(mean_tab, range);
-
-    chart_four(tab_main, tab_lowp, mean_tab, tab_squared, range);
+    double* tab_min_max = zakres(tab_main, tab_lowp, mean_tab, tab_squared, range);
+    //chart_four(tab_main, tab_lowp, mean_tab, tab_squared, range);
 
     delete[] tab_main;
     delete[] tab_lowp;
     delete[] mean_tab;
     delete[] tab_squared;
-    
+    delete[] tab_min_max;
+
     return 0;
 }
 

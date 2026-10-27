@@ -62,7 +62,7 @@ for(int i=0;reader.good() && i<range; i++){
 }
 
 double* lowp(double tab[], int range){ //filtr dolnoprzepustowy  y(n)=x(n)-x(n-7)
-    double* tab_lowp = new double[range];
+    double* tab_lowp = new double[range]; //stworzenie tablicy dynamicznej (gdyż range zadany w mainie moze zostać zmieniony)
     
     int N=7;
         for(int j=N;j<range;j++){

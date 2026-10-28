@@ -109,7 +109,7 @@ double* square(double tab[], int range) { //podnoszenie wartosci sygnalu do kwad
 double* zakres(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, int range){
 
     double* tab_range=new double[4];
-    double* tabs[4] = {tab, tab_lowp, mean_tab, tab_squared};
+    double* tabs[4] = {tab, tab_lowp, mean_tab, tab_squared}; //tablica zawierajaca 4 wczesniejsze tablice z sygnalami
 
     int min1, min2, min3, min4; // MIN VALUES
     min1=min2=min3=min4=numeric_limits<int>::infinity(); //inicjalizacja skrajnymi wartosciami (infinity)

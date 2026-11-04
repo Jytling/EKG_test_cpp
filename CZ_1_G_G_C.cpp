@@ -3,6 +3,7 @@
 #include <string>
 #include <limits>
 #include <cmath>
+#include <chrono>
 using namespace std;
 
 double* gettable(int range);
@@ -14,14 +15,15 @@ void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squ
 int* detekcja(const double* tab_squared, int range, int& lzalam);
 
 int main() {
-    int range = 2000;
+    int range = 650000-1;
+    auto tStart = chrono::high_resolution_clock::now();
 
     double* tab_main    = gettable(range);
     double* tab_lowp    = lowp(tab_main, range);
     double* mean_tab    = meansignal(tab_lowp, range);
     double* tab_squared = square(mean_tab, range);
     double* tab_range = zakres(tab_main, tab_lowp, mean_tab, tab_squared, range);
-    chart_four(tab_main, tab_lowp, mean_tab, tab_squared, tab_range, range);
+    //chart_four(tab_main, tab_lowp, mean_tab, tab_squared, tab_range, range);
 
     int lzalam = 0;
     int* zalamki_r = detekcja(tab_squared, range, lzalam);
@@ -38,6 +40,12 @@ int main() {
     delete[] tab_squared;
     delete[] tab_range;
 
+    auto tEnd = chrono::high_resolution_clock::now();
+
+    auto duration = chrono::duration_cast<chrono::milliseconds>(tEnd - tStart).count();
+
+    cout << duration << " ms";
+
     return 0;
 }
 
@@ -46,7 +54,7 @@ int main() {
 
 
 double* gettable(int range) {
-    double* tab = new double[range+1];
+    double* tab = new double[range];
 
 string temp;
 
@@ -80,21 +88,23 @@ double* lowp(double tab[], int range){
 double* meansignal(double tab[], int range){
 //y[n]=1/(N-1) - addition from k=0 to N-1 of y[n-k]
     double* mean_tab = new double[range];
-    for (int i=0; i<range; i++) {
+    const int N = 8;
+
+    for (int i = 0; i < N - 1 && i < range; i++) {
         mean_tab[i] = tab[i];
     }
-    int N=8;
-    double addition=0;
 
-    for (int i = 0; i < range / 8; i++) {
-        addition = 0;
-        for (int k = N - 8; k < N; k++) {
-            addition += mean_tab[k];
+    for (int n = N - 1; n < range; n++) {
+
+        double addition = 0.0;
+
+        for (int k = 0; k < N; k++) {
+            addition += tab[n - k];
         }
-        double mean = addition / 8.0;
-        mean_tab[i] = mean;
-        N += 8;
+
+        mean_tab[n] = addition / (N - 1);
     }
+
     return mean_tab;
 }
 
@@ -114,13 +124,13 @@ double* zakres(double *tab, double *tab_lowp, double *mean_tab, double *tab_squa
     double* tab_range=new double[4];
     double* tabs[4] = {tab, tab_lowp, mean_tab, tab_squared};
 
-    int min1, min2, min3, min4; // MIN VALUES
+    double min1, min2, min3, min4; // MIN VALUES
     min1=min2=min3=min4=numeric_limits<int>::infinity();
-    int max1, max2, max3, max4; // MAX VALUES
+    double max1, max2, max3, max4; // MAX VALUES
     max1=max2=max3=max4=-numeric_limits<int>::infinity();
 
-    int mins[4] ={min1,min2,min3,min4};
-    int maxs[4] ={max1,max2,max3,max4};
+    double mins[4] ={min1,min2,min3,min4};
+    double maxs[4] ={max1,max2,max3,max4};
 
     for(int i=0;i<4;i++) {
         for(int j=0; j<range; j++) {
@@ -204,7 +214,7 @@ int* detekcja(const double* sygnal, int lprobek, int& lzalam) {
     //Odszukanie pierwszego zalameka
     int ipierwsz = 0;
     double makswart = sygnal[0];
-    for (int i = 1; i < 1080; i++)
+    for (int i = 1; i < lprobek; i++)
     {
         if (sygnal[i] > makswart)
         {

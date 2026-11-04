@@ -11,6 +11,7 @@ double* meansignal(double tab[], int range);
 double* square(double tab[], int range);
 double* zakres(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, int range);
 void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, const double *tab_range, int range);
+int* detekcja(const double* tab_squared, int range, int& lzalam);
 
 int main() {
     int range = 2000;
@@ -22,6 +23,15 @@ int main() {
     double* tab_range = zakres(tab_main, tab_lowp, mean_tab, tab_squared, range);
     chart_four(tab_main, tab_lowp, mean_tab, tab_squared, tab_range, range);
 
+    int lzalam = 0;
+    int* zalamki_r = detekcja(tab_squared, range, lzalam);
+
+    for (int i = 0; i < lzalam; i++) {
+        cout << "Zalamek R #" << i + 1 << ": probka numer " << zalamki_r[i] << endl;
+    }
+
+
+    delete[] zalamki_r;
     delete[] tab_main;
     delete[] tab_lowp;
     delete[] mean_tab;
@@ -36,7 +46,7 @@ int main() {
 
 
 double* gettable(int range) {
-    double* tab = new double[range];
+    double* tab = new double[range+1];
 
 string temp;
 
@@ -45,7 +55,6 @@ string temp;
     getline(reader, temp);
     getline(reader, temp);
 
-tab[range+1];
 float sample;
 
 for(int i=0;reader.good() && i<range; i++){
@@ -126,7 +135,7 @@ double* zakres(double *tab, double *tab_lowp, double *mean_tab, double *tab_squa
 void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, const double *tab_range, int range) {
     double* tabs[4] = {tab, tab_lowp, mean_tab, tab_squared};
     const int width = 80;
-    int height = range;
+    const int height = range;
     char symbols[4] = {'*', '$', '#', '&'};
 
     double mins[4];
@@ -184,4 +193,84 @@ void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squ
         delete[] grid[i];
     }
     delete[] grid;
+}
+
+int* detekcja(const double* sygnal, int lprobek, int& lzalam) {
+    lzalam = 0; //definiujemy liczbe załamków w sygnale
+
+    int* izalam = new int[lprobek];  //tworzymy tablice przechowującą indeks zalamkow
+    double* Azalam = new double[lprobek];
+
+    //Odszukanie pierwszego zalameka
+    int ipierwsz = 0;
+    double makswart = sygnal[0];
+    for (int i = 1; i < 1080; i++)
+    {
+        if (sygnal[i] > makswart)
+        {
+            makswart = sygnal[i];
+            ipierwsz = i;
+        }
+    }
+
+    izalam[lzalam] = ipierwsz;
+    Azalam[lzalam] = makswart;
+    lzalam++;
+
+    double prog = makswart;
+
+    // --- Glowna petla algorytmu oparta wylacznie na petli for ---
+    for (int n = 1080; n < lprobek; ) {
+        // State 3: porownanie z progiem
+        if (sygnal[n] > prog) {
+            // State 1: okno 94 probek (260 ms)
+            int dokna = 94;
+            int kokna;
+
+            if (n + dokna < lprobek)
+            {
+                kokna = n + dokna; // Jeśli się mieści, weź normalny koniec
+            }
+            else
+            {
+                kokna = lprobek;   // Jeśli wystaje, przytnij do maksymalnej liczby próbek
+            }
+
+            int imaks = n;
+            double wartmaks = sygnal[n];
+
+            for (int i = n; i < kokna; i++) {
+                if (sygnal[i] > wartmaks) {
+                    wartmaks = sygnal[i];
+                    imaks = i;
+                }
+            }
+
+            // Zapis znalezionego zalamka R
+            izalam[lzalam] = imaks;
+            Azalam[lzalam] = wartmaks;
+            lzalam++;
+
+            // Nowy prog: srednia arytmetyczna ze wszystkich znalezionych zalamkow
+            double sumA = 0.0;
+            for (int i = 0; i < lzalam; i++) {
+                sumA += Azalam[i];
+            }
+            prog = sumA / lzalam;
+
+            // State 2: okres oczekiwania 72 probki od zalamka R
+            int kolkrok = kokna;
+            if (imaks + 72 > kolkrok) {
+                kolkrok = imaks + 72;
+            }
+            n = kolkrok;
+        } else {
+            // Obnizanie progu gdy warunek nie jest spelniony
+            prog = prog * 0.9816;
+            n++;
+        }
+    }
+
+    delete[] Azalam;
+    return izalam;
 }

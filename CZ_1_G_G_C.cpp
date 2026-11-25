@@ -4,6 +4,7 @@
 #include <limits>
 #include <cmath>
 #include <chrono>
+#include <sstream>
 using namespace std;
 
 double* gettable(int range);
@@ -13,16 +14,18 @@ double* square(double tab[], int range);
 double* zakres(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, int range);
 void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, const double *tab_range, int range);
 int* detekcja(const double* tab_squared, int range, int& lzalam);
+string* getannotation(int range);
 
 int main() {
     int range = 650000-1;
     auto tStart = chrono::high_resolution_clock::now();
 
-    double* tab_main    = gettable(range);
+    /*double* tab_main    = gettable(range);
     double* tab_lowp    = lowp(tab_main, range);
     double* mean_tab    = meansignal(tab_lowp, range);
     double* tab_squared = square(mean_tab, range);
     double* tab_range = zakres(tab_main, tab_lowp, mean_tab, tab_squared, range);
+    double* tab_adnotation = getannotation(range);
     //chart_four(tab_main, tab_lowp, mean_tab, tab_squared, tab_range, range);
 
     int lzalam = 0;
@@ -38,7 +41,9 @@ int main() {
     delete[] tab_lowp;
     delete[] mean_tab;
     delete[] tab_squared;
-    delete[] tab_range;
+    delete[] tab_range;*/
+
+    string* tab_adnotation = getannotation(range);
 
     auto tEnd = chrono::high_resolution_clock::now();
 
@@ -283,4 +288,26 @@ int* detekcja(const double* sygnal, int lprobek, int& lzalam) {
 
     delete[] Azalam;
     return izalam;
+}
+
+string *getannotation(int range) {
+
+    int value;
+    string temp;
+    string arr_val[1634];
+    char a[1634] = {0};
+    string* temp1 = new string[1634];
+
+    ifstream reader("annotations_124m.txt");
+    for(int i=0;reader.good() && i<1634; i++){
+        getline(reader,temp);
+        size_t val = temp.find(',');
+        value = i;
+        arr_val[i] = temp.substr(0,val);
+        temp1[i] = temp.substr(val+1);
+        strcpy(a, temp1[i].c_str());
+        cout << temp1[i].c_str() << ',';
+        cout << arr_val[i] << "    " << a[i] << endl;
+    }
+    return arr_val;
 }

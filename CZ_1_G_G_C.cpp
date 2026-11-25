@@ -5,6 +5,8 @@
 #include <cmath>
 #include <chrono>
 #include <sstream>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 double* gettable(int range);
@@ -14,7 +16,7 @@ double* square(double tab[], int range);
 double* zakres(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, int range);
 void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, const double *tab_range, int range);
 int* detekcja(const double* tab_squared, int range, int& lzalam);
-int* getannotation();
+vector<int> getannotation();
 
 int main() {
     int range = 650000-1;
@@ -43,7 +45,7 @@ int main() {
     delete[] tab_squared;
     delete[] tab_range;*/
 
-    int* tab_adnotation = getannotation();
+    vector<int> tab_adnotation = getannotation();
 
     auto tEnd = chrono::high_resolution_clock::now();
 
@@ -291,17 +293,24 @@ int* detekcja(const double* sygnal, int lprobek, int& lzalam) {
     return izalam;
 }
 
-int *getannotation() {
+vector<int> getannotation() {
+    const vector<char> R_SYMBOLS = { 'N', 'L', 'R', 'A', 'a', 'J', 'S', 'V', 'F', 'e', 'j', 'n', 'E', '/', 'f', 'Q', '?', 'p' };
     string temp;
-    int arr_val[1634];
-    //char a[1634] = {0};
+    vector<int> arr_val;
+    char a[1634] = {0};
     ifstream reader("annotations_124m.txt");
-    for(int i=0;reader.good() && i<1634; i++){
-        getline(reader,temp);
+    for (int i = 0; reader.good() && i < 1634; i++) {
+        getline(reader, temp);
         size_t val = temp.find(',');
-        arr_val[i] = stoi(temp.substr(0,val));
-        //a[i] = temp[val +1];
-        //cout << arr_val[i] << endl;
+
+        a[i] = temp[val + 1];
+
+        for (char x : R_SYMBOLS) {
+            if (a[i] == x) {
+                arr_val.push_back(stoi(temp.substr(0, val)));
+                break;
+            }
+        }
     }
     reader.close();
     return arr_val;

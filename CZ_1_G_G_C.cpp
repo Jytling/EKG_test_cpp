@@ -14,7 +14,7 @@ double* square(double tab[], int range);
 double* zakres(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, int range);
 void chart_four(double *tab, double *tab_lowp, double *mean_tab, double *tab_squared, const double *tab_range, int range);
 int* detekcja(const double* tab_squared, int range, int& lzalam);
-string* getannotation(int range);
+int* getannotation();
 
 int main() {
     int range = 650000-1;
@@ -43,7 +43,7 @@ int main() {
     delete[] tab_squared;
     delete[] tab_range;*/
 
-    string* tab_adnotation = getannotation(range);
+    int* tab_adnotation = getannotation();
 
     auto tEnd = chrono::high_resolution_clock::now();
 
@@ -76,6 +76,7 @@ for(int i=0;reader.good() && i<range; i++){
     sample=200*stof(temp);
     tab[i]=sample;
     }
+    reader.close();
     return tab;
 }
 
@@ -290,24 +291,18 @@ int* detekcja(const double* sygnal, int lprobek, int& lzalam) {
     return izalam;
 }
 
-string *getannotation(int range) {
-
-    int value;
+int *getannotation() {
     string temp;
-    string arr_val[1634];
-    char a[1634] = {0};
-    string* temp1 = new string[1634];
-
+    int arr_val[1634];
+    //char a[1634] = {0};
     ifstream reader("annotations_124m.txt");
     for(int i=0;reader.good() && i<1634; i++){
         getline(reader,temp);
         size_t val = temp.find(',');
-        value = i;
-        arr_val[i] = temp.substr(0,val);
-        temp1[i] = temp.substr(val+1);
-        strcpy(a, temp1[i].c_str());
-        cout << temp1[i].c_str() << ',';
-        cout << arr_val[i] << "    " << a[i] << endl;
+        arr_val[i] = stoi(temp.substr(0,val));
+        //a[i] = temp[val +1];
+        //cout << arr_val[i] << endl;
     }
+    reader.close();
     return arr_val;
 }
